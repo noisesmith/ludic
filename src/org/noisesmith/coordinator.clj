@@ -25,25 +25,3 @@
                       state)]
      (call-back applies? message state next-state)
      next-state)))
-
-#_(defn do-coordinated
-    "nominates us to perform f, if no-one else nominates first,
-     if someone else wins f will never be called"
-    [state place f]
-    (let [claim (gensym (str place))
-          nomination-place [::nominated place]]
-      (-> state
-          (assoc-in [::local place]
-                    (fn [applied? state next-state _ _]
-                      (when applied?
-                        (f))))
-          (update ::pending (fnil conj [])
-                  [:store nomination-place claim]
-                  [:set place claim {nomination-place claim}]))))
-
-#_(defn propagate!
-    [state transmission-fn]
-    (let [events (get state ::pending)]
-      (doseq [event events]
-        (transmission-fn event))
-      (dissoc state ::pending)))
