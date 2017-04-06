@@ -7,6 +7,7 @@
   (merge-with conj older newer))
 
 (defn operate
+  ;; TODO - heartbeats and servers
   [state new-state callback]
   (let [apply? (matches? state new-state)
         next-state (if apply?
