@@ -57,7 +57,7 @@
         "the second rule should apply")
     (is (= (l/enabled (nth boards 1))
            (take 1 rules))
-        "after an iteration, the second rule should apply")
+        "after an iteration, the first rule should apply")
     (l/fire (nth boards 4))
     (is (= [{:rule  2 :action [7 '-> 14]}] @log)
         "the fifth iteration should run rule 2 7 -> 14")))
