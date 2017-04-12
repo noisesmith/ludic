@@ -12,9 +12,9 @@
   (transition [this message]
     "an arbitrary transform of the GameBoard, must return a GameBoard")
   (tick [this]
-    "runs all currently enabled rules and updates the clock")
+    "runs a currently enabled rule and updates the clock")
   (fire [this]
-    "executes all side-effecting consequences of the current state")
+    "executes all side-effecting consequences of the next tick")
   (clock [this]
     "the comparable data representing \"now\""))
 
