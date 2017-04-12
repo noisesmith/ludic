@@ -5,7 +5,7 @@
 Ludic is a library describing the passage of logical time as a deterministic
 fold over a series of inputs.
 
-![otter, hard at work][otter-stacking.jpg]
+![otter, hard at work](otter-stacking.jpg)
 
 The GameBoard protocol allows iterating game states and introspecting on
 which rules *would* execute, without executing the side effects attached to
