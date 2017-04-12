@@ -23,11 +23,12 @@
     "boolean, is this rule implied by the current state?")
   (run [this state]
     "applies this rule to the state, returning a new state")
-  (execute [this state]
+  (execute [this old-state new-state]
     "runs all side effects implied by this rule, given the state"))
 
 (defrecord Game
            [game-state rules t]
+  GameBoard
   (enabled [this]
     (filter #(ready % game-state) rules))
   (state [this]
@@ -37,11 +38,14 @@
   (tick [this]
     (-> this
         (update :game-state
-                #(reduce (fn [st rule]
-                           (run rule st))
-                         rules))
+                #(run (first (enabled this)) %))
         (update :t inc)))
   (fire [this]
-    (doseq [rule rules]
-      (execute rule game-state)))
+    (let [upcoming (-> this
+                       (tick)
+                       (:game-state))]
+      (-> this
+          (enabled)
+          (first)
+          (execute game-state upcoming))))
   (clock [this] t))
