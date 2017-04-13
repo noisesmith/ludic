@@ -6,8 +6,8 @@
   []
   (reify l/Rule
     (ready [this state] false)
-    (run [this state] state)
-    (execute [this state-a state-b])))
+    (run [this picked state] state)
+    (execute [this picked state-a state-b])))
 
 (deftest simple-rule-test
   (is (null-rule)))
@@ -30,9 +30,9 @@
         rules [(reify l/Rule
                  (ready [this state]
                    (even? (:a state)))
-                 (run [this state]
+                 (run [this _ state]
                    (update state :a inc))
-                 (execute [this old-state new-state]
+                 (execute [this _ old-state new-state]
                    (vswap! log conj {:rule 1
                                      :action [(:a old-state)
                                               '->
@@ -40,9 +40,9 @@
                (reify l/Rule
                  (ready [this state]
                    (odd? (:a state)))
-                 (run [this state]
+                 (run [this _ state]
                    (update state :a * 2))
-                 (execute [this old-state new-state]
+                 (execute [this _ old-state new-state]
                    (vswap! log conj {:rule 2
                                      :action [(:a old-state)
                                               '->

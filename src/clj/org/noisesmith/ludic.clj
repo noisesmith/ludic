@@ -20,10 +20,10 @@
 
 (defprotocol Rule
   (ready [this state]
-    "boolean, is this rule implied by the current state?")
-  (run [this state]
+    "pseudo-boolean, is this rule implied by the current state?")
+  (run [this accepted state]
     "applies this rule to the state, returning a new state")
-  (execute [this old-state new-state]
+  (execute [this accepted old-state new-state]
     "runs all side effects implied by this rule, given the state"))
 
 (defrecord Game
@@ -38,7 +38,9 @@
   (tick [this]
     (-> this
         (update :game-state
-                #(run (first (enabled this)) %))
+                (fn [s]
+                  (let [rule (first (enabled this))]
+                    (run rule (ready rule s) s))))
         (update :t inc)))
   (fire [this]
     (let [upcoming (-> this
@@ -47,5 +49,6 @@
       (-> this
           (enabled)
           (first)
-          (execute game-state upcoming))))
+          (as-> rule
+            (execute rule (ready rule game-state) game-state upcoming)))))
   (clock [this] t))
