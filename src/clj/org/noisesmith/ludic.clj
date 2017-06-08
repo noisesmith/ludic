@@ -27,7 +27,7 @@
     "runs all side effects implied by this rule, given the state"))
 
 (defrecord Game
-           [game-state rules t]
+  [game-state rules t]
   GameBoard
   (enabled [this]
     (filter #(ready % game-state) rules))
@@ -36,19 +36,21 @@
   (transition [this message]
     (message this))
   (tick [this]
-    (-> this
-        (update :game-state
-                (fn [s]
-                  (let [rule (first (enabled this))]
-                    (run rule (ready rule s) s))))
-        (update :t inc)))
+    (if-let [rule (first (enabled this))]
+      (-> this
+          (update :game-state
+                  (fn [s]
+                    (run rule (ready rule s) s)))
+          (update :t inc))
+      this))
   (fire [this]
     (let [upcoming (-> this
                        (tick)
                        (:game-state))]
-      (-> this
-          (enabled)
-          (first)
-          (as-> rule
-            (execute rule (ready rule game-state) game-state upcoming)))))
+      (when-let [rule (first (enabled this))]
+        (-> this
+            (enabled)
+            (first)
+            (as-> rule
+              (execute rule (ready rule game-state) game-state upcoming))))))
   (clock [this] t))
