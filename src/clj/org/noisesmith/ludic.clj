@@ -27,7 +27,7 @@
     "runs all side effects implied by this rule, given the state"))
 
 (defrecord Game
-  [game-state rules t]
+           [game-state rules t]
   GameBoard
   (enabled [this]
     (filter #(ready % game-state) rules))
@@ -52,5 +52,5 @@
             (enabled)
             (first)
             (as-> rule
-              (execute rule (ready rule game-state) game-state upcoming))))))
+                  (execute rule (ready rule game-state) game-state upcoming))))))
   (clock [this] t))
