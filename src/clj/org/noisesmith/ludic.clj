@@ -26,17 +26,27 @@
   (execute [this accepted old-state new-state]
     "runs all side effects implied by this rule, given the state"))
 
+(defn spy
+  [handler v & args]
+  (when handler
+    (apply handler (concat args [(pr-str v)])))
+  v)
+
 (defrecord Game
-           [game-state rules t]
+           [game-state rules t debug]
   GameBoard
   (enabled [this]
-    (filter #(ready % game-state) rules))
+    (spy debug
+         (filter #(ready % game-state) rules)
+         ::enabled "returning list of enabled rules..."))
   (state [this]
     game-state)
   (transition [this message]
     (message this))
   (tick [this]
-    (if-let [rule (first (enabled this))]
+    (if-let [rule (spy debug
+                       (first (enabled this))
+                       ::tick "ticking rule is")]
       (-> this
           (update :game-state
                   (fn [s]
@@ -47,10 +57,12 @@
     (let [upcoming (-> this
                        (tick)
                        (:game-state))]
-      (when-let [rule (first (enabled this))]
+      (when-let [rule (spy debug
+                           (first (enabled this))
+                           ::fire "firing rule is")]
         (-> this
             (enabled)
             (first)
-            (as-> rule
-                  (execute rule (ready rule game-state) game-state upcoming))))))
+            (as-> r
+                  (execute r (ready r game-state) game-state upcoming))))))
   (clock [this] t))
