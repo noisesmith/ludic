@@ -64,5 +64,5 @@
             (enabled)
             (first)
             (as-> r
-                  (execute r (ready r game-state) game-state upcoming))))))
+                  (execute r (ready r game-state) this upcoming))))))
   (clock [this] t))

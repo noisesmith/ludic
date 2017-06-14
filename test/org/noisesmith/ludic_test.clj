@@ -42,9 +42,9 @@
                    (odd? (:a state)))
                  (run [this _ state]
                    (update state :a * 2))
-                 (execute [this _ old-state new-state]
+                 (execute [this _ game new-state]
                    (vswap! log conj {:rule 2
-                                     :action [(:a old-state)
+                                     :action [(:a (:game-state game))
                                               '->
                                               (:a new-state)]})))]
         game (l/map->Game
