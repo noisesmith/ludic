@@ -4,6 +4,8 @@
    Ludic is a library describing the passage of logical time as a deterministic
    fold over a series of inputs.")
 
+;; A GameBoard knows which rules currently apply to its state, and invokes
+;; rules to achieve its next state.
 (defprotocol GameBoard
   (enabled [this]
     "the rules that are currently accessible")
@@ -18,6 +20,8 @@
   (clock [this]
     "the comparable data representing \"now\""))
 
+;; A rule can tell you if it applies to a given state, how it would change the
+;; state if it was run, and which side effects to execute if it is run.
 (defprotocol Rule
   (ready [this state]
     "pseudo-boolean, is this rule implied by the current state?")
