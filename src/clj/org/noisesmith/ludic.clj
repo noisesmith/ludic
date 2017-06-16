@@ -33,7 +33,7 @@
 (defn spy
   [handler v & args]
   (when handler
-    (apply handler (concat args [(pr-str v)])))
+    (apply handler (concat args [v])))
   v)
 
 (defrecord Game
@@ -42,7 +42,7 @@
   (enabled [this]
     (spy debug
          (filter #(ready % game-state) rules)
-         ::enabled "returning list of enabled rules..."))
+         ::enabled))
   (state [this]
     game-state)
   (transition [this message]
@@ -50,23 +50,26 @@
   (tick [this]
     (if-let [rule (spy debug
                        (first (enabled this))
-                       ::tick "ticking rule is")]
+                       ::tick)]
       (-> this
           (update :game-state
                   (fn [s]
-                    (run rule (ready rule s) s)))
+                    (run rule
+                         (spy debug (ready rule s) ::tick-target)
+                         s)))
           (update :t inc))
       this))
   (fire [this]
     (let [upcoming (-> this
                        (tick)
                        (:game-state))]
-      (when-let [rule (spy debug
-                           (first (enabled this))
-                           ::fire "firing rule is")]
+      (when-let [rule (first (enabled this))]
         (-> this
             (enabled)
             (first)
             (as-> r
-                  (execute r (ready r game-state) this upcoming))))))
+                  (execute r
+                           (spy debug (ready r game-state) ::fire-target)
+                           this
+                           upcoming))))))
   (clock [this] t))
