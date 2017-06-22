@@ -73,3 +73,30 @@
                            this
                            upcoming))))))
   (clock [this] t))
+
+(defn step-until-idle
+  "iterates fire / tick until no progress is possible"
+  [game callback]
+  (loop [game game]
+    (if-not (callback game ::cycle)
+      game
+      (let [_ (fire game)
+            next-game (tick game)]
+        (if (= (clock game)
+               (clock next-game))
+          game
+          (recur next-game))))))
+
+(defn main-loop
+  ([game-record get-command dispatch]
+   (main-loop game-record get-command dispatch (constantly nil)))
+  ([game-record get-command dispatch callback]
+   (main-loop game-record get-command dispatch callback (constantly nil)))
+  ([game-record get-command dispatch callback debug]
+   (loop [game game-record]
+     (let [command (get-command game)]
+       (if-not (callback game command)
+         game
+         (recur (-> game
+                    (dispatch command)
+                    (step-until-idle callback))))))))
