@@ -91,8 +91,6 @@
   ([game-record get-command dispatch]
    (main-loop game-record get-command dispatch (constantly nil)))
   ([game-record get-command dispatch callback]
-   (main-loop game-record get-command dispatch callback (constantly nil)))
-  ([game-record get-command dispatch callback debug]
    (loop [game game-record]
      (let [command (get-command game)]
        (if-not (callback game command)
