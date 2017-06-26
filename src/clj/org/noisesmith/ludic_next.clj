@@ -56,10 +56,11 @@
   [game spy callback]
   (if-not (callback game ::cycle)
     game
-    (let [next-game (-> (doto game ludic/fire)
+    (let [next-game (-> game
                         (activate)
-                        (spy ::cycle)
-                        (ludic/tick))]
+                        (ludic/tick)
+                        (doto ludic/fire)
+                        (spy ::cycle))]
       (if (= (ludic/clock game)
              (ludic/clock next-game))
         game
