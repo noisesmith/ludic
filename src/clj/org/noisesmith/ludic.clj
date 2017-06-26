@@ -11,7 +11,12 @@
     "the rules that are currently accessible")
   (state [this]
     "the data collections implementing the full state of the current game")
-  (transition [this message]
+  (transition
+    [this message]
+    [this message x1]
+    [this message x1 x2]
+    [this message x1 x2 x3]
+    [this message x1 x2 x3 x4]
     "an arbitrary transform of the GameBoard, must return a GameBoard")
   (tick [this]
     "runs a currently enabled rule and updates the clock")
@@ -45,8 +50,8 @@
          ::enabled))
   (state [this]
     game-state)
-  (transition [this message]
-    (message this))
+  (transition [this message & args]
+    (apply message this args))
   (tick [this]
     (if-let [rule (spy debug
                        (first (enabled this))
