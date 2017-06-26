@@ -31,7 +31,11 @@
 
 (deftest game-test
   (let [log (volatile! [])
-        rules [(reify l-/Rule
+        rules [(reify
+                 l/Rule
+                 (consumes [this] [:a])
+                 (produces [this] [:a])
+                 l-/Rule
                  (ready [this state]
                    (even? (:a state)))
                  (run [this _ state]
@@ -41,7 +45,11 @@
                                      :action [(:a old-state)
                                               '->
                                               (:a new-state)]})))
-               (reify l-/Rule
+               (reify
+                 l/Rule
+                 (consumes [this] [:a])
+                 (produces [this] [:a])
+                 l-/Rule
                  (ready [this state]
                    (odd? (:a state)))
                  (run [this _ state]

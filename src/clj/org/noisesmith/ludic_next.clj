@@ -16,12 +16,16 @@
   GameBoard
   (activate [this]
     (assoc this
-           :enabled (first
-                     (sequence (comp
-                                (map (juxt identity
-                                           #(ludic/ready % game-state)))
-                                (filter second))
-                               rules))))
+           :enabled
+           (first
+            (sequence (comp
+                       (map (juxt identity
+                                  #(ludic/ready
+                                    %
+                                    (select-keys game-state
+                                                 (consumes %)))))
+                       (filter second))
+                      rules))))
   ludic/GameBoard
   (enabled [this]
     (:enabled this))
@@ -34,7 +38,9 @@
       (-> this
           (update :game-state
                   (fn [s]
-                    (ludic/run rule data s)))
+                    (merge s
+                           (select-keys (ludic/run rule data s)
+                                        (produces rule)))))
           (update :t inc))
       this))
   (fire [this]
