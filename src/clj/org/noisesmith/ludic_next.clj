@@ -20,10 +20,12 @@
            (first
             (sequence (comp
                        (map (juxt identity
-                                  #(ludic/ready
-                                    %
-                                    (select-keys game-state
-                                                 (consumes %)))))
+                                  (fn check-ready
+                                    [rule]
+                                    (ludic/ready
+                                     rule
+                                     (select-keys game-state
+                                                  (consumes rule))))))
                        (filter second))
                       rules))))
   ludic/GameBoard
