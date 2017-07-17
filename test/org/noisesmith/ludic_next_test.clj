@@ -33,6 +33,7 @@
   (let [log (volatile! [])
         rules [(reify
                  l/Rule
+                 (reads [this] [])
                  (consumes [this] [:a])
                  (produces [this] [:a])
                  l-/Rule
@@ -47,6 +48,7 @@
                                               (:a new-state)]})))
                (reify
                  l/Rule
+                 (reads [this] [])
                  (consumes [this] [:a])
                  (produces [this] [:a])
                  l-/Rule

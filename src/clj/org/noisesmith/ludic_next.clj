@@ -6,6 +6,8 @@
     "marks rules as active in this context, and tracks their context data"))
 
 (defprotocol Rule
+  (reads [this]
+    "the parts of a game record it reads from")
   (consumes [this]
     "the parts of a game record it removes data from")
   (produces [this]
@@ -25,7 +27,8 @@
                                     (ludic/ready
                                      rule
                                      (select-keys game-state
-                                                  (consumes rule))))))
+                                                  (into (reads rule)
+                                                        (consumes rule)))))))
                        (filter second))
                       rules))))
   ludic/GameBoard
@@ -42,7 +45,8 @@
                   (fn [s]
                     (merge s
                            (select-keys (ludic/run rule data s)
-                                        (produces rule)))))
+                                        (into (consumes rule)
+                                              (produces rule))))))
           (update :t inc))
       this))
   (fire [this]
