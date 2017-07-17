@@ -1,5 +1,6 @@
 (ns org.noisesmith.ludic-next
-  (:require [org.noisesmith.ludic :as ludic]))
+  (:require [org.noisesmith.ludic :as ludic]
+            [clojure.string :as string]))
 
 (defprotocol GameBoard
   (activate [this]
@@ -12,6 +13,42 @@
     "the parts of a game record it removes data from")
   (produces [this]
     "the parts of a game record it puts data into"))
+
+(defn viz-rules
+  "produces a graphiz .dot file, suitable for viewing via eg.
+   dot -Tpng foo.dot > foo.png"
+  [rules]
+  (let [places (into #{}
+                     (comp (mapcat #(list (.consumes %) (.produces %)))
+                           cat
+                           (map name))
+                     rules)
+        rule-str #(second (re-matches #"<<\| Cluster Rule (.*) \|>>"
+                                      (str %)))
+        transitions (map rule-str rules)
+        flows (concat (for [rule rules
+                            input (.consumes rule)]
+                        [(name input) (rule-str rule)])
+                      (for [rule rules
+                            output (.produces rule)]
+                        [(rule-str rule) (name output)]))]
+    (string/join \newline
+                 (concat
+                  ["digraph G {"
+                   "\tsubgraph places {"
+                   "\t\tgraph [shape=circle,color=gray];"
+                   "\t\tnode [shape=circle,fixedsize=true,width=1.5];"]
+                  (for [place places]
+                    (str "\t\t\"" place "\";"))
+                  ["\t}"
+                   "\tsubgraph transitions {"
+                   "\t\tnode [shape=rect,height=0.2,width=2];"]
+                  (for [transition transitions]
+                    (str "\t\t\"" transition "\";"))
+                  ["\t}"]
+                  (for [flow flows]
+                    (str "\t\"" (first flow) "\" -> \"" (second flow) "\";"))
+                  ["}"]))))
 
 (defrecord Game
            [game-state rules t]
