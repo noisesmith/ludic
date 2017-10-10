@@ -92,7 +92,12 @@
         (proto/execute rule data this upcoming))
       (assoc this :enabled nil)))
   (clock [this]
-    t))
+    t)
+  proto/Tracked
+  (track [this]
+    (when-let [tracker (:tracker this)]
+      (tracker this))
+    this))
 
 (defn one-step
   [game callback spy]
@@ -127,6 +132,7 @@
       [::continue (-> game
                       (spy ::pre-dispatch command)
                       (proto/transition dispatch command)
+                      (proto/track)
                       (spy ::post-dispatch command))])))
 
 (defn main-loop

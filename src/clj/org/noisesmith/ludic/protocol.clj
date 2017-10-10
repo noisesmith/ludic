@@ -40,3 +40,7 @@
   (when handler
     (apply handler (concat args [v])))
   v)
+
+(defprotocol Tracked
+  (track [this]
+    "used to allow various operations by a client on the state history"))
