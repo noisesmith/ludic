@@ -43,4 +43,6 @@
 
 (defprotocol Tracked
   (track [this]
-    "used to allow various operations by a client on the state history"))
+    "used to allow various operations by a client on the state history")
+  (history [this]
+    "used to retrieve the result of tracking"))
