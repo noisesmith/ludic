@@ -19,7 +19,8 @@
    dot -Tpng foo.dot > foo.png"
   [rules]
   (let [places (into #{}
-                     (comp (mapcat #(list (.consumes %) (.produces %)))
+                     (comp (mapcat #(list (consumes %)
+                                          (produces %)))
                            cat
                            (map name))
                      rules)
@@ -27,10 +28,10 @@
                                       (str %)))
         transitions (map rule-str rules)
         flows (concat (for [rule rules
-                            input (.consumes rule)]
+                            input (consumes rule)]
                         [(name input) (rule-str rule)])
                       (for [rule rules
-                            output (.produces rule)]
+                            output (produces rule)]
                         [(rule-str rule) (name output)]))]
     (string/join \newline
                  (concat
@@ -49,6 +50,19 @@
                   (for [flow flows]
                     (str "\t\"" (first flow) "\" -> \"" (second flow) "\";"))
                   ["}"]))))
+
+(defn make-tracker
+  ([] (make-tracker 100))
+  ([hist-size]
+   (let [state (atom [])]
+     (fn
+       ([] @state)
+       ([item]
+        (swap! state
+               #(->> (conj % item)
+                     (take-last hist-size)
+                     (into [])))
+        state)))))
 
 (defrecord Game
            [game-state rules t]
@@ -93,11 +107,16 @@
       (assoc this :enabled nil)))
   (clock [this]
     t)
+  ;; the :tracker key should contain a function that tracks an item when
+  ;; given a single arg, and return the history when given no args
   proto/Tracked
   (track [this]
     (when-let [tracker (:tracker this)]
       (tracker this))
-    this))
+    this)
+  (history [this]
+    (when-let [tracker (:tracker this)]
+      (tracker))))
 
 (defn one-step
   [game callback spy]
